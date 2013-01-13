@@ -21,8 +21,6 @@ class Partial
     end
   end
 
-  alias :<< :supply
-
   def evaluate
     call(*args)
   end

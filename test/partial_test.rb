@@ -40,10 +40,6 @@ class PartialTest < Minitest::Unit::TestCase
     assert_equal [1], partial.args
   end
 
-  def test_supply_operator
-    assert_equal [1, 2], (partial << 2).args
-  end
-
   def test_that_it_is_returned_from_objects
     assert_instance_of Partial, adder.partial(:add3)
   end
