@@ -63,10 +63,12 @@ class PartialTest < Minitest::Unit::TestCase
   end
 
   def test_that_it_binds_to_instances
-    unbound = Adder.instance_method(:add3)
-    partial = Partial.new(:unbound, unbound, [])
-    assert_instance_of UnboundMethod, partial._method
-    assert_instance_of Method, partial.bound_to(adder)._method
+    unbound_method  = Adder.instance_method(:add3)
+    unbound_partial = Partial.new(:unbound, unbound_method, [])
+    bound_partial   = unbound_partial.bound_to(adder)
+
+    refute_respond_to unbound_partial._method, :call
+    assert_respond_to bound_partial._method,   :call
   end
 
   def test_def_partial
