@@ -35,10 +35,6 @@ class Partial
     _method.call(*args)
   end
 
-  def arity
-    _method.arity
-  end
-
   def new_from(name, meth, args, lazy)
     self.class.new(name, meth, args, lazy: lazy)
   end
