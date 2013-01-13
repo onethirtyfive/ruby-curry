@@ -52,6 +52,10 @@ module Curryable
     base.send(:extend,  ClassMethods)
   end
 
+  def self.global!
+    Object.send(:include, self)
+  end
+
   module InstanceMethods
     def partial(method_name, **options)
       _method = method(method_name.to_sym)

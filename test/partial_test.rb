@@ -1,8 +1,7 @@
 require_relative '../lib/partial.rb'
 require 'minitest/autorun'
 
-String.send(:include, Curryable)
-Array.send(:include, Curryable)
+Curryable.global!
 
 class Adder
   include Curryable
@@ -11,7 +10,7 @@ class Adder
     x + y + z
   end
 
-  def_partial :add2, :add3, 1
+  def_partial :add1, :add3, 1, 2
 end
 
 class PartialTest < Minitest::Unit::TestCase
@@ -75,6 +74,6 @@ class PartialTest < Minitest::Unit::TestCase
   end
 
   def test_def_partial
-    assert_equal 6, adder.add2(2, 3)
+    assert_equal 6, adder.add1(3)
   end
 end
