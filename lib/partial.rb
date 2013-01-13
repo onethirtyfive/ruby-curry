@@ -3,20 +3,20 @@ class Partial
 
   attr_reader :_method, :args, :lazy
 
-  def initialize(_method, *args, lazy: false)
+  def initialize(_method, args, lazy: false)
     @_method = _method
     @args    = args
-    @lazy    = lazy
+    @lazy    = !!lazy
   end
 
   def supply(*addl_args)
     all_args = args + addl_args
-    return new_from(_method, *all_args, lazy: true) if lazy
+    return new_from(_method, all_args, lazy) if lazy
 
     begin
       call(*all_args)
     rescue ArgumentError
-      new_from(_method, *all_args)
+      new_from(_method, all_args, lazy)
     end
   end
 
@@ -34,13 +34,13 @@ class Partial
     _method.arity
   end
 
-  def new_from(method, *args)
-    self.class.new(method, *args)
+  def new_from(meth, args, lazy)
+    self.class.new(meth, args, lazy: lazy)
   end
 end
 
 class Object
-  def partial(_method, lazy: false)
-    Partial.new(method(_method.to_sym), lazy: lazy)
+  def partial(_method, **options)
+    Partial.new(method(_method.to_sym), [], options)
   end
 end

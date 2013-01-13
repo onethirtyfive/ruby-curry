@@ -7,7 +7,7 @@ end
 
 class PartialTest < Minitest::Unit::TestCase
   def partial
-    @partial ||= Partial.new(method(:add3), 1)
+    @partial ||= Partial.new(method(:add3), [1])
   end
 
   def test_that_it_initializes
