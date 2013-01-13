@@ -4,8 +4,6 @@ require 'minitest/autorun'
 Curryable.global!
 
 class Adder
-  include Curryable
-
   def add3(x, y, z)
     x + y + z
   end
