@@ -1,9 +1,10 @@
 class Partial
   class TooManyArguments < ArgumentError; end
 
-  attr_reader :_method, :args, :lazy
+  attr_reader :name, :_method, :args, :lazy
 
-  def initialize(_method, args, lazy: false)
+  def initialize(name, _method, args, lazy: false)
+    @name    = name.to_sym
     @_method = _method
     @args    = args
     @lazy    = !!lazy
@@ -11,17 +12,23 @@ class Partial
 
   def supply(*addl_args)
     all_args = args + addl_args
-    return new_from(_method, all_args, lazy) if lazy
+    return new_from(name, _method, all_args, lazy) if lazy
 
     begin
       call(*all_args)
     rescue ArgumentError
-      new_from(_method, all_args, lazy)
+      new_from(name, _method, all_args, lazy)
     end
   end
 
+  alias :<< :supply
+
   def evaluate
     call(*args)
+  end
+
+  def bound_to(obj)
+    new_from(name, _method.bind(obj), args, lazy)
   end
 
   private
@@ -34,13 +41,43 @@ class Partial
     _method.arity
   end
 
-  def new_from(meth, args, lazy)
-    self.class.new(meth, args, lazy: lazy)
+  def new_from(name, meth, args, lazy)
+    self.class.new(name, meth, args, lazy: lazy)
   end
 end
 
-class Object
-  def partial(_method, **options)
-    Partial.new(method(_method.to_sym), [], options)
+module Curryable
+  def self.included(base)
+    base.send(:include, InstanceMethods)
+    base.send(:extend,  ClassMethods)
+  end
+
+  module InstanceMethods
+    def partial(method_name, **options)
+      _method = method(method_name.to_sym)
+      Partial.new(method_name, _method, [], options)
+    end
+
+    def method_missing(name, *args, &blk)
+      if partial = self.class.partials.find {|p| p.name == name}
+        bound = partial.bound_to(self).supply(*args)
+        bound.is_a?(Partial) ? bound.evaluate : bound
+      else
+        super
+      end
+    end
+  end
+
+  module ClassMethods
+    def partials
+      @partials ||= []
+    end
+
+    def def_partial(name, _method, *args)
+      _method = instance_method(_method.to_sym)
+      partial = Partial.new(name, _method, args)
+      
+      partials << partial
+    end
   end
 end

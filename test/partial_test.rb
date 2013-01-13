@@ -1,13 +1,26 @@
 require_relative '../lib/partial.rb'
 require 'minitest/autorun'
 
-def add3(x, y, z)
-  x + y + z
+String.send(:include, Curryable)
+Array.send(:include, Curryable)
+
+class Adder
+  include Curryable
+
+  def add3(x, y, z)
+    x + y + z
+  end
+
+  def_partial :add2, :add3, 1
 end
 
 class PartialTest < Minitest::Unit::TestCase
+  def adder
+    @adder ||= Adder.new
+  end
+
   def partial
-    @partial ||= Partial.new(method(:add3), [1])
+    @partial ||= Partial.new('add3', adder.method(:add3), [1])
   end
 
   def test_that_it_initializes
@@ -28,8 +41,12 @@ class PartialTest < Minitest::Unit::TestCase
     assert_equal [1], partial.args
   end
 
+  def test_supply_operator
+    assert_equal [1, 2], (partial << 2).args
+  end
+
   def test_that_it_is_returned_from_objects
-    assert_instance_of Partial, "string".partial(:chop)
+    assert_instance_of Partial, adder.partial(:add3)
   end
 
   def test_that_it_chains_partial_and_supply_calls
@@ -48,5 +65,16 @@ class PartialTest < Minitest::Unit::TestCase
 
   def test_that_it_evaluates_lazy_partials
     assert_equal true, [1, 2].partial(:member?, lazy: true).supply(1).evaluate
+  end
+
+  def test_that_it_binds_to_instances
+    unbound = Adder.instance_method(:add3)
+    partial = Partial.new(:unbound, unbound, [])
+    assert_instance_of UnboundMethod, partial._method
+    assert_instance_of Method, partial.bound_to(adder)._method
+  end
+
+  def test_def_partial
+    assert_equal 6, adder.add2(2, 3)
   end
 end
