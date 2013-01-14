@@ -1,0 +1,41 @@
+Provide bahavior similar to currying in functional languages like Haskell.
+
+... Yes, just like Proc#curry, except slightly different.
+
+<selfdeprecation>
+  This library is mostly experimental and not particularly useful.
+  You probably shouldn't use it.
+</selfdeprecation>
+
+Usage:
+
+# include Curryable to get curry behavior
+String.send(:include, Curryable)
+
+# evaluates once a valid number of arguments are supplied
+partial = "a string".curry(:split) # => #<Partial: ...>
+partial.supply("r")                # => ["a st", "ing"]
+
+# if lazy is specified, doesn't evaluate until explicitly told to.
+# useful for methods that can take a variable number of arguments
+partial = "a string".curry(:split, lazy: true) # => #<Partial: ...>
+partial.supply("r")                            # => #<Partial: ...>
+partial.supply("r").supply(2).evaluate         # => ["a st", "ing"]
+
+# define new instance methods in terms of another method with
+# partially applied arguments using the def_partial macro
+class MyClass
+  def_partial :add5, :add, 5
+  def_partial :six,  :add, 5, 1
+
+  def add(x, y)
+    x + y
+  end
+end
+
+obj = MyClass.new
+obj.add(5, 1) # => 6
+obj.add5(1)   # => 6
+obj.six       # => 6
+
+* Note: I think this only works with Ruby 2 because it uses keyword args.
