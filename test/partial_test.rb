@@ -51,7 +51,7 @@ class PartialTest < Minitest::Unit::TestCase
     assert_equal ["one", "two"], "one,two".curry(:split).supply(",")
     assert_equal ["one,two"],    "one,two".curry(:split).supply(",", 1)
   end
-  
+
   def test_that_supply_doesnt_evaluate_if_lazy
     assert_instance_of Partial, [1, 2].curry(:member?, lazy: true).supply(1)
   end

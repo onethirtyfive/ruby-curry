@@ -74,7 +74,7 @@ module Curryable
     def def_partial(name, _method, *args)
       _method = instance_method(_method.to_sym)
       partial = Partial.new(name, _method, args)
-      
+
       partials << partial
     end
   end
