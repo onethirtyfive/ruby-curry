@@ -51,7 +51,7 @@ module Curryable
   end
 
   module InstanceMethods
-    def partial(method_name, **options)
+    def curry(method_name, **options)
       _method = method(method_name.to_sym)
       Partial.new(method_name, _method, [], options)
     end

@@ -39,25 +39,25 @@ class PartialTest < Minitest::Unit::TestCase
   end
 
   def test_that_it_is_returned_from_objects
-    assert_instance_of Partial, adder.partial(:add3)
+    assert_instance_of Partial, adder.curry(:add3)
   end
 
   def test_that_it_chains_partial_and_supply_calls
-    assert_equal true, [1, 2].partial(:member?).supply(1)
+    assert_equal true, [1, 2].curry(:member?).supply(1)
   end
 
   def test_that_it_tries_evaluation_if_method_has_ambiguous_arity
-    assert_equal ["one", "two"], "one two".partial(:split).supply()
-    assert_equal ["one", "two"], "one,two".partial(:split).supply(",")
-    assert_equal ["one,two"],    "one,two".partial(:split).supply(",", 1)
+    assert_equal ["one", "two"], "one two".curry(:split).supply()
+    assert_equal ["one", "two"], "one,two".curry(:split).supply(",")
+    assert_equal ["one,two"],    "one,two".curry(:split).supply(",", 1)
   end
   
   def test_that_supply_doesnt_evaluate_if_lazy
-    assert_instance_of Partial, [1, 2].partial(:member?, lazy: true).supply(1)
+    assert_instance_of Partial, [1, 2].curry(:member?, lazy: true).supply(1)
   end
 
   def test_that_it_evaluates_lazy_partials
-    assert_equal true, [1, 2].partial(:member?, lazy: true).supply(1).evaluate
+    assert_equal true, [1, 2].curry(:member?, lazy: true).supply(1).evaluate
   end
 
   def test_that_it_binds_to_instances
