@@ -38,4 +38,7 @@ obj.add(5, 1) # => 6
 obj.add5(1)   # => 6
 obj.six       # => 6
 
+# monkey patch ALL the objects
+Curryable.global!
+
 * Note: I think this only works with Ruby 2 because it uses keyword args.
